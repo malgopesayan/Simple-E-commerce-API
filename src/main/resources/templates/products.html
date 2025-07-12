@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Products</title></head>
+<body>
+<h2>Product List</h2>
+<div id="productList"></div>
+
+<script>
+async function loadProducts() {
+    const res = await fetch('/api/products');
+    const page = await res.json();
+    const div = document.getElementById('productList');
+    div.innerHTML = page.content.map(p => `
+        <div>
+            <strong>${p.name}</strong> - $${p.price}<br>
+            <em>${p.description}</em><br>
+            <button onclick="addToCart(${p.id})">Add to Cart</button>
+        </div><hr>
+    `).join('');
+}
+
+async function addToCart(productId) {
+    const res = await fetch('/api/cart', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        body: JSON.stringify({ productId: productId, quantity: 1 })
+    });
+
+    if (res.ok) {
+        alert('Added to cart!');
+    } else {
+        alert('You must be logged in as a customer.');
+    }
+}
+
+loadProducts();
+</script>
+</body>
+</html>

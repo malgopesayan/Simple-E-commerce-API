@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Your Cart</title></head>
+<body>
+<h2>Your Cart</h2>
+<div id="cart"></div>
+<button onclick="placeOrder()">Place Order</button>
+
+<script>
+async function loadCart() {
+    const res = await fetch('/api/cart', {
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    });
+    const items = await res.json();
+    document.getElementById('cart').innerHTML = items.map(i => `
+        <div>
+            ${i.product.name} - Qty: ${i.quantity}
+            <button onclick="removeItem(${i.product.id})">Remove</button>
+        </div>
+    `).join('');
+}
+
+async function removeItem(productId) {
+    await fetch(`/api/cart/${productId}`, {
+        method: 'DELETE',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    });
+    loadCart();
+}
+
+async function placeOrder() {
+    const res = await fetch('/api/orders', {
+        method: 'POST',
+        headers: { 'Authorization': 'Bearer ' + localStorage.getItem('token') }
+    });
+    if (res.ok) {
+        alert("Order placed!");
+        loadCart();
+    } else {
+        alert("Failed to place order");
+    }
+}
+
+loadCart();
+</script>
+</body>
+</html>

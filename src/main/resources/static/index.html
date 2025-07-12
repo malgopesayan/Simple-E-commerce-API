@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Simple E-commerce API</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 20px; }
+        h1, h2, h3 { color: #333; }
+        code { background-color: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        pre { background-color: #f4f4f4; padding: 10px; border-radius: 4px; overflow-x: auto; }
+        ul { margin-top: 5px; }
+        li { margin-bottom: 5px; }
+        a { color: #0066cc; text-decoration: none; }
+        a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <h1>Simple E-commerce API</h1>
+
+    <p>This application provides a simple backend API for an e-commerce system using Spring Boot, Spring Security (JWT), and H2 Database.</p>
+    <p>API interaction typically requires sending HTTP requests with JSON bodies and JWT tokens in the Authorization header.</p>
+    <p>You will need a tool like <a href="https://www.postman.com/" target="_blank">Postman</a>, <a href="https://insomnia.rest/" target="_blank">Insomnia</a>, or <code>curl</code> to interact with these endpoints.</p>
+
+    <h2>Key Endpoints:</h2>
+
+    <h3>Authentication (`/api/auth`)</h3>
+    <ul>
+        <li><b>POST <code>/api/auth/register</code></b>: Register a new user (defaults to role CUSTOMER).
+            <pre>Body (JSON):
+{
+  "username": "newuser",
+  "password": "securepassword"
+}</pre>
+        </li>
+         <li><b>POST <code>/api/auth/authenticate</code></b>: Log in with username/password to get a JWT token.
+            <pre>Body (JSON):
+{
+  "username": "customer1",
+  "password": "customerpassword"
+}</pre>
+            <p>Use the returned <code>jwtToken</code> in the <code>Authorization: Bearer <token></code> header for all protected endpoints.</p>
+            <p>Default users created on startup: admin/adminpassword (ADMIN role), customer/customerpassword (CUSTOMER role).</p>
+        </li>
+    </ul>
+
+    <h3>Products (`/api/products`)</h3>
+    <ul>
+        <li><b>GET <code>/api/products</code></b>: Get a list of all products. (Requires Authentication - CUSTOMER or ADMIN)</li>
+        <li><b>GET <code>/api/products/{id}</code></b>: Get details of a specific product by ID. (Requires Authentication - CUSTOMER or ADMIN)</li>
+        <li><b>POST <code>/api/products</code></b>: Create a new product. (Requires Authentication - ADMIN only)
+             <pre>Body (JSON):
+{
+  "name": "New Gadget",
+  "description": "Latest tech gizmo",
+  "price": 99.99
+}</pre>
+        </li>
+        <li><b>PUT <code>/api/products/{id}</code></b>: Update an existing product by ID. (Requires Authentication - ADMIN only)
+             <pre>Body (JSON):
+{
+  "name": "Updated Gadget",
+  "description": "Even better now",
+  "price": 89.50
+}</pre>
+        </li>
+        <li><b>DELETE <code>/api/products/{id}</code></b>: Delete a product by ID. (Requires Authentication - ADMIN only)</li>
+    </ul>
+
+    <h3>Cart (`/api/cart`)</h3>
+     <p>Requires Authentication - CUSTOMER only for all endpoints.</p>
+     <ul>
+        <li><b>GET <code>/api/cart</code></b>: Get the current user's shopping cart items.</li>
+        <li><b>POST <code>/api/cart/add</code></b>: Add a product to the cart or increase quantity if already present.
+             <pre>Body (JSON):
+{
+  "productId": 1,
+  "quantity": 2
+}</pre>
+        </li>
+        <li><b>PUT <code>/api/cart/update</code></b>: Update the quantity of a product in the cart. Setting quantity to 0 removes the item.
+             <pre>Body (JSON):
+{
+  "productId": 1,
+  "quantity": 3
+}</pre>
+        </li>
+        <li><b>DELETE <code>/api/cart/remove/{productId}</code></b>: Remove a specific product entirely from the cart by product ID.</li>
+        <li><b>DELETE <code>/api/cart/clear</code></b>: Remove all items from the current user's cart.</li>
+    </ul>
+
+     <h3>Orders (`/api/orders`)</h3>
+     <ul>
+        <li><b>POST <code>/api/orders/create</code></b>: Create a new order from the current user's cart. (Requires Authentication - CUSTOMER only). Clears the cart upon successful order creation.</li>
+        <li><b>GET <code>/api/orders/my</code></b>: View all orders placed by the current user. (Requires Authentication - CUSTOMER only).</li>
+        <li><b>GET <code>/api/orders</code></b>: View all orders placed by any user. (Requires Authentication - ADMIN only).</li>
+    </ul>
+
+    <h2>Database Console (Development only):</h2>
+    <p>Access the H2 console at <a href="/h2-console" target="_blank">/h2-console</a>.</p>
+    <p>Credentials (from application.properties):</p>
+    <ul>
+        <li>JDBC URL: <code>jdbc:h2:mem:ecommerce</code></li>
+        <li>User Name: <code>sa</code></li>
+        <li>Password: <code>password</code></li>
+    </ul>
+
+</body>
+</html>
